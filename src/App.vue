@@ -23,9 +23,9 @@
               img.card-img-top(:src="item.pictures[0]" alt="item.title")
               p.card-pictures-count +{{ (item.pictures.length-1) }}
               div.favorite(
-                @click="changeFavoriteList(item.id)"
+                @click="changeFavoriteList(item)"
               )
-                font-awesome-icon(:icon="['fas', 'heart']" v-if="item.isFavorite")
+                font-awesome-icon(:icon="['fas', 'heart']" v-if="isFavorite(item)")
                 font-awesome-icon(:icon="['far', 'heart']" v-else)
             .card-body
               h5.card-title
@@ -86,12 +86,14 @@ export default {
       sellersList: [],
       favoriteList: [],
       favoriteFilter: false,
+      // API's EndPoints
       links: {
         products: 'http://avito.dump.academy/products',
         product: 'http://avito.dump.academy/products/:product_id',
         sellers: 'http://avito.dump.academy/sellers',
         seller: 'http://avito.dump.academy/sellers/:seller_id'
       },
+      // Filter's data
       categories: {
         all: 'Все',
         immovable: 'Недвижимость',
@@ -106,6 +108,7 @@ export default {
     }
   },
   methods: {
+    // API
     getSellers () {
       axios.get(this.links.sellers)
         .then(response => (this.sellersList = response.data.data))
@@ -116,6 +119,8 @@ export default {
         .then(response => (this.allProductList = response.data.data))
         .catch(error => console.error(error))
     },
+
+    // Sorting
     sortingProductsByPrice () {
       this.productsItems.sort((a, b) => (a.price - b.price))
     },
@@ -124,17 +129,20 @@ export default {
         this.sellersList[a.relationships.seller].rating - this.sellersList[b.relationships.seller].rating)
       ).reverse()
     },
-    changeFavoriteList (id) {
-      this.productsItems[id].isFavorite = true
-      
+
+    // work with a Favorite list
+    changeFavoriteList (item) {
       let index = this.favoriteList.findIndex((element, index, array) => {
-        return id === element.id
+        return item.id === element.id
       })
       if (index === -1) {
-        this.favoriteList.push(this.productsItems[id])
+        this.favoriteList.push(item)
       } else {
         this.favoriteList.splice(index, 1)
       }
+    },
+    isFavorite (item) {
+      return this.favoriteList.includes(item)
     }
   },
   mounted () {
@@ -157,6 +165,7 @@ export default {
     }
   },
   computed: {
+    // current product list
     productsItems () {
       if (this.favoriteFilter) {
         return this.favoriteList
@@ -164,6 +173,7 @@ export default {
         return this.allProductList
       }
     },
+    // filtred current product list
     filtredProducts () {
       return this.productsItems
         // Search filter
