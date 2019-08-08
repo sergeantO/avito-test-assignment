@@ -7,20 +7,26 @@
           span Почти
           h1 Авито
       .col-10
-        input.form-control(type="text" aria-label="Поиск")
+        input.form-control(
+          type="text"
+          aria-label="Поиск"
+          v-model="search"
+
+        )
 
     // cards
     .row
       .col-9
         main.card-deck
-          .card(v-for="item in productsItems")
+          .card(v-for="item in filtredProducts")
             .card-header
               img.card-img-top(:src="item.pictures[0]" alt="item.title")
               p.card-pictures-count +{{ (item.pictures.length-1) }}
             .card-body
               h5.card-title
                 a(href="#") {{ item.title }}
-              p.card-text Цена: {{ item.price ? ( item.price | priceFormat ) : 'не указанна' }}
+              p.card-text(v-if="item.price") Цена: {{ item.price | priceFormat }}
+              p.card-text(v-else) Цена не указана
             .card-footer
               p.card-text {{ sellersList[item.relationships.seller].name }}
               p.card-text ({{ sellersList[item.relationships.seller].rating }})
@@ -32,7 +38,7 @@
           .input-group
             input(type="checkbox" aria-label="Checkbox for following text input")
             label Избранные
-          
+
           p По категории
           .btn-toolbar(role="toolbar" aria-label="Toolbar with button groups")
             select.custom-select
@@ -50,8 +56,8 @@
 
           h4 Сортировать
           .btn-group-vertical.mr-2(role="group" aria-label="Second group")
-            button.btn.btn-secondary(type="button") по рейтингу продавца
-            button.btn.btn-secondary(type="button") по возрастанию цены
+            button.btn.btn-secondary(type="button" @click="sortingProductsByRating") по рейтингу продавца
+            button.btn.btn-secondary(type="button" @click="sortingProductsByPrice") по возрастанию цены
 </template>
 
 <script>
@@ -62,6 +68,7 @@ export default {
     return {
       productsItems: [],
       sellersList: [],
+      search: '',
       links: {
         products: 'http://avito.dump.academy/products',
         product: 'http://avito.dump.academy/products/:product_id',
@@ -86,6 +93,14 @@ export default {
       axios.get(this.links.products)
         .then(response => (this.productsItems = response.data.data))
         .catch(error => console.error(error))
+    },
+    sortingProductsByPrice () {
+      this.productsItems.sort((a, b) => (a.price - b.price))
+    },
+    sortingProductsByRating () {
+      this.productsItems.sort((a, b) => (
+        this.sellersList[a.relationships.seller].rating - this.sellersList[b.relationships.seller].rating)
+      ).reverse()
     }
   },
   mounted () {
@@ -96,9 +111,17 @@ export default {
   },
   filters: {
     priceFormat (value) {
-      let options = { style: 'currency', currency: 'RUB' }
+      let options = { style: 'currency', currency: 'RUB', minimumFractionDigits: 0,  maximumFractionDigits: 0 }
       let numberFormat = new Intl.NumberFormat('ru-RU', options)
       return numberFormat.format(value)
+    }
+  },
+  computed: {
+    filtredProducts () {
+      return this.productsItems
+        .filter(item => {
+          return ~item.title.toLowerCase().indexOf(this.search)
+        })
     }
   }
 }
