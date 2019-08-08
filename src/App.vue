@@ -27,6 +27,7 @@
                 a(href="#") {{ item.title }}
               p.card-text(v-if="item.price") Цена: {{ item.price | priceFormat }}
               p.card-text(v-else) Цена не указана
+              p.card-text {{ item.category }}
             .card-footer
               p.card-text {{ sellersList[item.relationships.seller].name }}
               p.card-text ({{ sellersList[item.relationships.seller].rating }})
@@ -40,12 +41,11 @@
             label Избранные
 
           p По категории
-          .btn-toolbar(role="toolbar" aria-label="Toolbar with button groups")
-            select.custom-select
-              option(selected="") недвижимость
-              option(value="1") фотоаппараты
-              option(value="2") автомобили
-              option(value="3") ноутбуки
+          ul.list-group(v-for="(value, name) in categories")
+            li.list-group-item(
+              :class="{ 'active': chooseCategory === name }"
+              @click="chooseCategory = name"
+            ) {{ value }}
 
           p по цене
           .input-group
@@ -80,21 +80,23 @@ export default {
     return {
       productsItems: [],
       sellersList: [],
-      search: '',
-      minPrice: null,
-      maxPrice: null,
       links: {
         products: 'http://avito.dump.academy/products',
         product: 'http://avito.dump.academy/products/:product_id',
         sellers: 'http://avito.dump.academy/sellers',
         seller: 'http://avito.dump.academy/sellers/:seller_id'
       },
-      categories: [
-        'immovable',
-        'cameras',
-        'auto',
-        'laptops'
-      ]
+      categories: {
+        all: 'Все',
+        immovable: 'Недвижимость',
+        cameras: 'Фотоаппараты',
+        auto: 'Автомобили',
+        laptops: 'Ноутбуки'
+      },
+      chooseCategory: 'all',
+      search: '',
+      minPrice: null,
+      maxPrice: null
     }
   },
   methods: {
@@ -139,8 +141,11 @@ export default {
   computed: {
     filtredProducts () {
       return this.productsItems
+        // Search
         .filter(item => {
           return ~item.title.toLowerCase().indexOf(this.search)
+        }).filter(item => {
+          return (this.chooseCategory === 'all') ? true : ~item.category.indexOf(this.chooseCategory)
         }).filter(item => {
           return this.minPrice ? item.price > this.minPrice : true
         }).filter(item => {
