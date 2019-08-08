@@ -1,5 +1,6 @@
 <template lang="pug">
   #app.container
+    // header
     header.row
       .col-2
         .logo
@@ -8,21 +9,30 @@
       .col-10
         input.form-control(type="text" aria-label="Поиск")
 
+    // cards
     .row
       .col-9
         main.card-deck
-          .card(v-for="item in items")
+          .card(v-for="item in productsItems")
             .card-header
               img.card-img-top(:src="item.pictures[0]" alt="item.title")
               p.card-pictures-count +{{ (item.pictures.length-1) }}
             .card-body
-              h5.card-title {{ item.title }}
+              h5.card-title
+                a(href="#") {{ item.title }}
               p.card-text Цена: {{ item.price ? ( item.price | priceFormat ) : 'не указанна' }}
-              p.card-text Продавец: {{ item.relationships.seller }}
+            .card-footer
+              p.card-text {{ sellersList[item.relationships.seller].name }}
+              p.card-text ({{ sellersList[item.relationships.seller].rating }})
 
+      // Aside
       .col-3
         aside
           h4 Фильтры
+          .input-group
+            input(type="checkbox" aria-label="Checkbox for following text input")
+            label Избранные
+          
           p По категории
           .btn-toolbar(role="toolbar" aria-label="Toolbar with button groups")
             select.custom-select
@@ -38,10 +48,6 @@
             input.form-control(type="text" aria-label="Last name")
             label.custom-file-label(for="inputGroupFile03") до
 
-          .input-group
-            input(type="checkbox" aria-label="Checkbox for following text input")
-            label Сначала избранные
-
           h4 Сортировать
           .btn-group-vertical.mr-2(role="group" aria-label="Second group")
             button.btn.btn-secondary(type="button") по рейтингу продавца
@@ -54,7 +60,8 @@ export default {
   name: 'App',
   data () {
     return {
-      items: [],
+      productsItems: [],
+      sellersList: [],
       links: {
         products: 'http://avito.dump.academy/products',
         product: 'http://avito.dump.academy/products/:product_id',
@@ -69,11 +76,23 @@ export default {
       ]
     }
   },
+  methods: {
+    getSellers () {
+      axios.get(this.links.sellers)
+        .then(response => (this.sellersList = response.data.data))
+        .catch(error => console.error(error))
+    },
+    getProducts () {
+      axios.get(this.links.products)
+        .then(response => (this.productsItems = response.data.data))
+        .catch(error => console.error(error))
+    }
+  },
   mounted () {
-    axios
-      .get(this.links.products)
-      .then(response => (this.items = response.data.data))
-      .catch(error => console.error(error))
+    axios.all([
+      this.getSellers(),
+      this.getProducts()
+    ])
   },
   filters: {
     priceFormat (value) {
@@ -88,6 +107,19 @@ export default {
 <style lang="scss">
 
 @import "./styles/custom-bootstrap";
+
+.container {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
 
 header {
   input {
@@ -121,6 +153,10 @@ header {
        box-shadow: inset 0px -30px 5px 0px rgba(255,255,255,1);
   }
 
+  .card-body {
+    padding: .5rem;
+  }
+
   .card-pictures-count {
     display: block;
     position: absolute;
@@ -133,6 +169,12 @@ header {
     text-align: center;
     opacity: .85;
     box-shadow: 3px 3px 6px 0px rgba(0,0,0,0.49);
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: .7rem .5rem;
   }
 }
 </style>
