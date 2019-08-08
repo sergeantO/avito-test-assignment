@@ -131,6 +131,22 @@ export default {
     },
 
     // work with a Favorite list
+    isFavorite (item) {
+      return this.favoriteList.includes(item)
+    },
+    loadingLocalFavoriteList () {
+      if (localStorage.getItem('favList')) {
+        try {
+          this.favoriteList = JSON.parse(localStorage.getItem('favList'))
+        } catch (e) {
+          localStorage.removeItem('favList')
+        }
+      }
+    },
+    saveLocalFavoriteList () {
+      const parsed = JSON.stringify(this.favoriteList)
+      localStorage.setItem('favList', parsed)
+    },
     changeFavoriteList (item) {
       let index = this.favoriteList.findIndex((element, index, array) => {
         return item.id === element.id
@@ -140,16 +156,14 @@ export default {
       } else {
         this.favoriteList.splice(index, 1)
       }
-    },
-    isFavorite (item) {
-      return this.favoriteList.includes(item)
+      this.saveLocalFavoriteList()
     }
   },
   mounted () {
     axios.all([
       this.getSellers(),
       this.getProducts()
-    ])
+    ]).then(this.loadingLocalFavoriteList())
   },
   filters: {
     priceFormat (value) {
