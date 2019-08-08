@@ -22,12 +22,16 @@
             .card-header
               img.card-img-top(:src="item.pictures[0]" alt="item.title")
               p.card-pictures-count +{{ (item.pictures.length-1) }}
+              div.favorite(
+                @click="changeFavoriteList(item.id)"
+              )
+                font-awesome-icon(:icon="['fas', 'heart']" v-if="item.isFavorite")
+                font-awesome-icon(:icon="['far', 'heart']" v-else)
             .card-body
               h5.card-title
                 a(href="#") {{ item.title }}
               p.card-text(v-if="item.price") Цена: {{ item.price | priceFormat }}
               p.card-text(v-else) Цена не указана
-              p.card-text {{ item.category }}
             .card-footer
               p.card-text {{ sellersList[item.relationships.seller].name }}
               p.card-text ({{ sellersList[item.relationships.seller].rating }})
@@ -37,7 +41,7 @@
         aside
           h4 Фильтры
           .input-group
-            input(type="checkbox" aria-label="Checkbox for following text input")
+            input(type="checkbox" aria-label="Checkbox for following text input" v-model="favoriteFilter")
             label Избранные
 
           p По категории
@@ -78,8 +82,10 @@ export default {
   name: 'App',
   data () {
     return {
-      productsItems: [],
+      allProductList: [],
       sellersList: [],
+      favoriteList: [],
+      favoriteFilter: false,
       links: {
         products: 'http://avito.dump.academy/products',
         product: 'http://avito.dump.academy/products/:product_id',
@@ -107,7 +113,7 @@ export default {
     },
     getProducts () {
       axios.get(this.links.products)
-        .then(response => (this.productsItems = response.data.data))
+        .then(response => (this.allProductList = response.data.data))
         .catch(error => console.error(error))
     },
     sortingProductsByPrice () {
@@ -117,6 +123,18 @@ export default {
       this.productsItems.sort((a, b) => (
         this.sellersList[a.relationships.seller].rating - this.sellersList[b.relationships.seller].rating)
       ).reverse()
+    },
+    changeFavoriteList (id) {
+      this.productsItems[id].isFavorite = true
+      
+      let index = this.favoriteList.findIndex((element, index, array) => {
+        return id === element.id
+      })
+      if (index === -1) {
+        this.favoriteList.push(this.productsItems[id])
+      } else {
+        this.favoriteList.splice(index, 1)
+      }
     }
   },
   mounted () {
@@ -139,15 +157,25 @@ export default {
     }
   },
   computed: {
+    productsItems () {
+      if (this.favoriteFilter) {
+        return this.favoriteList
+      } else {
+        return this.allProductList
+      }
+    },
     filtredProducts () {
       return this.productsItems
-        // Search
+        // Search filter
         .filter(item => {
           return ~item.title.toLowerCase().indexOf(this.search)
+        // Category filter
         }).filter(item => {
           return (this.chooseCategory === 'all') ? true : ~item.category.indexOf(this.chooseCategory)
+        // minPrice filter
         }).filter(item => {
           return this.minPrice ? item.price > this.minPrice : true
+        // maxPrice filter
         }).filter(item => {
           return this.maxPrice ? item.price < this.maxPrice : true
         })
