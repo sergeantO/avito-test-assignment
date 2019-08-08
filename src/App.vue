@@ -49,15 +49,27 @@
 
           p по цене
           .input-group
-            label.custom-file-label(for="inputGroupFile03") с
-            input.form-control(type="text" aria-label="First name")
-            input.form-control(type="text" aria-label="Last name")
-            label.custom-file-label(for="inputGroupFile03") до
+            input.form-control(
+              type="text"
+              aria-label="First name"
+              placeholder="С"
+              v-model.number="minPrice")
+            input.form-control(
+              type="text"
+              aria-label="Last name"
+              placeholder="до"
+              v-model.number="maxPrice")
 
           h4 Сортировать
           .btn-group-vertical.mr-2(role="group" aria-label="Second group")
-            button.btn.btn-secondary(type="button" @click="sortingProductsByRating") по рейтингу продавца
-            button.btn.btn-secondary(type="button" @click="sortingProductsByPrice") по возрастанию цены
+            button.btn.btn-secondary(
+              type="button"
+              @click="sortingProductsByRating"
+            ) по рейтингу продавца
+            button.btn.btn-secondary(
+              type="button"
+              @click="sortingProductsByPrice"
+            ) по возрастанию цены
 </template>
 
 <script>
@@ -69,6 +81,8 @@ export default {
       productsItems: [],
       sellersList: [],
       search: '',
+      minPrice: null,
+      maxPrice: null,
       links: {
         products: 'http://avito.dump.academy/products',
         product: 'http://avito.dump.academy/products/:product_id',
@@ -111,7 +125,13 @@ export default {
   },
   filters: {
     priceFormat (value) {
-      let options = { style: 'currency', currency: 'RUB', minimumFractionDigits: 0,  maximumFractionDigits: 0 }
+      let options = {
+        style: 'currency',
+        currency: 'RUB',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }
+
       let numberFormat = new Intl.NumberFormat('ru-RU', options)
       return numberFormat.format(value)
     }
@@ -121,6 +141,10 @@ export default {
       return this.productsItems
         .filter(item => {
           return ~item.title.toLowerCase().indexOf(this.search)
+        }).filter(item => {
+          return this.minPrice ? item.price > this.minPrice : true
+        }).filter(item => {
+          return this.maxPrice ? item.price < this.maxPrice : true
         })
     }
   }
