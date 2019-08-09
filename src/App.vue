@@ -39,41 +39,45 @@
       // Aside
       .col-3
         aside
-          h4 Фильтры
-          .input-group
-            input(type="checkbox" aria-label="Checkbox for following text input" v-model="favoriteFilter")
-            label Только избранные
+          .aside-block
+            h4 Фильтры
+            .input-group
+              input(type="checkbox" aria-label="Checkbox for following text input" v-model="favoriteFilter")
+              label Только избранные
 
-          ul.list-group
-            li.list-group-item(
-              v-for="(value, name) in categories"
-              :class="{ 'active': chooseCategory === name }"
-              @click="chooseCategory = name"
-            ) {{ value }}
+          .aside-block
+            ul.list-group
+              li.list-group-item(
+                v-for="(value, name) in categories"
+                :class="{ 'active': chooseCategory === name }"
+                @click="chooseCategory = name"
+              ) {{ value }}
 
-          .input-group
+          .aside-block
             p по цене
-            input.form-control(
-              type="text"
-              aria-label="First name"
-              placeholder="С"
-              v-model.number="minPrice")
-            input.form-control(
-              type="text"
-              aria-label="Last name"
-              placeholder="до"
-              v-model.number="maxPrice")
+            .input-group
+              input.form-control(
+                type="text"
+                aria-label="First name"
+                placeholder="С"
+                v-model.number="minPrice")
+              input.form-control(
+                type="text"
+                aria-label="Last name"
+                placeholder="до"
+                v-model.number="maxPrice")
 
-          h4 Сортировать
-          .btn-group-vertical.mr-2(role="group" aria-label="Second group")
-            button.btn.btn-primary(
-              type="button"
-              @click="sortingProductsByRating"
-            ) по рейтингу продавца
-            button.btn.btn-primary(
-              type="button"
-              @click="sortingProductsByPrice"
-            ) по возрастанию цены
+          .aside-block
+            h4 Сортировать
+            .btn-group-vertical.mr-2(role="group" aria-label="Second group")
+              button.btn.btn-primary(
+                type="button"
+                @click="sortingProductsByRating"
+              ) по рейтингу продавца
+              button.btn.btn-primary(
+                type="button"
+                @click="sortingProductsByPrice"
+              ) по возрастанию цены
 </template>
 
 <script>
@@ -241,7 +245,8 @@ header {
   }
 }
 
-.input-group, .list-group {
+.aside-block {
+  width: 100%;
   margin: 25px 0;
 
   input[type="checkbox"] {
