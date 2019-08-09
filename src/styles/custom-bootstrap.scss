@@ -3,4 +3,42 @@
 // Our custom variables file
 @import "./variables";
 // The bootstrap file that compiles the CSS
-@import "../node_modules/bootstrap/scss/bootstrap";
+//@import "../node_modules/bootstrap/scss/bootstrap";
+
+@import "../node_modules/bootstrap/scss/mixins";
+@import "../node_modules/bootstrap/scss/reboot";
+@import "../node_modules/bootstrap/scss/type";
+@import "../node_modules/bootstrap/scss/grid";
+@import "../node_modules/bootstrap/scss/buttons";
+@import "../node_modules/bootstrap/scss/button-group";
+@import "../node_modules/bootstrap/scss/input-group";
+@import "../node_modules/bootstrap/scss/card";
+@import "../node_modules/bootstrap/scss/list-group";
+
+
+// @import "root";
+//@import "../node_modules/bootstrap/scss/images";
+// @import "code";
+// @import "tables";
+// @import "forms";
+// @import "transitions";
+// @import "dropdown";
+// @import "custom-forms";
+// @import "nav";
+// @import "navbar";
+// @import "breadcrumb";
+// @import "pagination";
+// @import "badge";
+// @import "jumbotron";
+// @import "alert";
+// @import "progress";
+// @import "media";
+// @import "close";
+// @import "toasts";
+// @import "modal";
+// @import "tooltip";
+// @import "popover";
+// @import "carousel";
+// @import "spinners";
+// @import "utilities";
+// @import "print";
