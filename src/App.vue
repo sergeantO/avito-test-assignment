@@ -33,7 +33,7 @@
               p.card-text(v-if="item.price") Цена: {{ item.price | priceFormat }}
               p.card-text(v-else) Цена не указана
             .card-footer
-              p.card-text {{ sellersList[item.relationships.seller].name }}
+              p.card-text {{ sellersList[item.relationships.seller].name | trim }}
               p.card-text ({{ sellersList[item.relationships.seller].rating }})
 
       // Aside
@@ -42,17 +42,17 @@
           h4 Фильтры
           .input-group
             input(type="checkbox" aria-label="Checkbox for following text input" v-model="favoriteFilter")
-            label Избранные
+            label Только избранные
 
-          p По категории
-          ul.list-group(v-for="(value, name) in categories")
+          ul.list-group
             li.list-group-item(
+              v-for="(value, name) in categories"
               :class="{ 'active': chooseCategory === name }"
               @click="chooseCategory = name"
             ) {{ value }}
 
-          p по цене
           .input-group
+            p по цене
             input.form-control(
               type="text"
               aria-label="First name"
@@ -66,11 +66,11 @@
 
           h4 Сортировать
           .btn-group-vertical.mr-2(role="group" aria-label="Second group")
-            button.btn.btn-secondary(
+            button.btn.btn-primary(
               type="button"
               @click="sortingProductsByRating"
             ) по рейтингу продавца
-            button.btn.btn-secondary(
+            button.btn.btn-primary(
               type="button"
               @click="sortingProductsByPrice"
             ) по возрастанию цены
@@ -131,9 +131,6 @@ export default {
     },
 
     // work with a Favorite list
-    isFavorite (item) {
-      return this.favoriteList.includes(item)
-    },
     loadingLocalFavoriteList () {
       if (localStorage.getItem('favList')) {
         try {
@@ -157,6 +154,9 @@ export default {
         this.favoriteList.splice(index, 1)
       }
       this.saveLocalFavoriteList()
+    },
+    isFavorite (item) {
+      return this.favoriteList.includes(item)
     }
   },
   mounted () {
@@ -176,6 +176,14 @@ export default {
 
       let numberFormat = new Intl.NumberFormat('ru-RU', options)
       return numberFormat.format(value)
+    },
+    trim (string) {
+      let maxStringLength = 15
+      if (string.length > maxStringLength) {
+        return string.slice(0, maxStringLength) + '...'
+      } else {
+        return string
+      }
     }
   },
   computed: {
@@ -225,22 +233,39 @@ export default {
   }
 }
 
+p {
+  margin: 0.2rem;
+}
 header {
   input {
     margin: 8px;
   }
 }
 
-.input-group {
-  margin: 5px;
+.input-group, .list-group {
+  margin: 25px 0;
+
+  input[type="checkbox"] {
+    margin: 7px;
+  }
+
+  p{
+    margin-bottom: 3px;
+    width: 100%;
+  }
 }
 
-.logo{
+.btn-group-vertical {
+  width: 100%;
+}
+
+.logo {
   text-align: right;
   span {
     display: block;
     margin-bottom: -18px;
     font-size: 12px;
+    color: $primary
   }
 }
 
@@ -251,28 +276,36 @@ header {
   max-width: calc(33% - 30px);
 
   .card-header {
-     position: relative;
-      width: 100%;
-      padding: 0;
-       box-shadow: inset 0px -30px 5px 0px rgba(255,255,255,1);
+    position: relative;
+    width: 100%;
+    padding: 0;
+    box-shadow: inset 0px -30px 5px 0px rgba(255,255,255,1);
+
+    .favorite {
+      display: block;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      color: $primary
+    }
+
+    .card-pictures-count {
+      display: block;
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      width: 25px;
+      height: 25px;
+      background-color: $primary;
+      border-radius: 50%;
+      text-align: center;
+      opacity: .85;
+      box-shadow: 3px 3px 6px 0px rgba(0,0,0,0.49);
+    }
   }
 
   .card-body {
     padding: .5rem;
-  }
-
-  .card-pictures-count {
-    display: block;
-    position: absolute;
-    bottom: 10px;
-    right: 25px;
-    width: 25px;
-    height: 25px;
-    background-color: #fff;
-    border-radius: 50%;
-    text-align: center;
-    opacity: .85;
-    box-shadow: 3px 3px 6px 0px rgba(0,0,0,0.49);
   }
 
   .card-footer {
